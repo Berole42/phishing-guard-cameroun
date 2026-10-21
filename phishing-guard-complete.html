@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Guard Cameroun - Détection d'Arnaques</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-color: #60a5fa;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .shield-icon {
+            width: 32px;
+            height: 32px;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            width: 100%;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+        .stat-icon.total {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .stat-icon.low {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .stat-icon.medium {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        .stat-icon.high {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .stat-info {
+            flex: 1;
+        }
+        .stat-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        .stat-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .recent-analyses {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        .analyses-list {
+            margin-top: 1rem;
+        }
+        .analysis-item {
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .analysis-item.low {
+            border-left-color: var(--success-color);
+        }
+        .analysis-item.medium {
+            border-left-color: var(--warning-color);
+        }
+        .analysis-item.high {
+            border-left-color: var(--danger-color);
+        }
+        .analysis-item-info {
+            flex: 1;
+        }
+        .analysis-item-type {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .analysis-item-summary {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .analysis-item-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        .analysis-item-level {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .analysis-item-level.low {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        .analysis-item-level.medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+        .analysis-item-level.high {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+        .analysis-card {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-group textarea,
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .form-group textarea:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .result-container {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+        .result-container.hidden {
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .result-level {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+        }
+        .result-level.low {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        .result-level.medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+        .result-level.high {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+        .result-indicators {
+            margin-bottom: 1.5rem;
+        }
+        .indicator-item {
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--warning-color);
+        }
+        .indicator-item.high-risk {
+            border-left-color: var(--danger-color);
+        }
+        .indicator-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .indicator-explanation {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .result-precautions {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            border: 1px solid var(--primary-color);
+        }
+        .result-precautions h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        .result-precautions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .result-precautions li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .result-precautions li::before {
+            content: "•";
+            position: absolute;
+            left: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .result-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--warning-color);
+            font-size: 0.875rem;
+            color: var(--warning-color);
+        }
+        .history-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .search-box,
+        .filter-box {
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-box input,
+        .filter-box select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .history-list {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        .history-item {
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .history-item-content {
+            flex: 1;
+        }
+        .history-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .history-item-type {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .history-item-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .history-item-summary {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .history-item-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .history-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-delete {
+            background-color: transparent;
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .tip-card {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        .tip-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary-color);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .tip-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        .tip-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+        .tip-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            color: var(--danger-color);
+            font-size: 0.875rem;
+        }
+        .footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+        }
+        .footer p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .footer .disclaimer {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .nav-btn {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.875rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .history-controls {
+                flex-direction: column;
+            }
+            .analysis-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .history-item {
+                flex-direction: column;
+            }
+            .history-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .analysis-card,
+            .result-container,
+            .history-list,
+            .recent-analyses {
+                padding: 1rem;
+            }
+            .stat-card {
+                padding: 1rem;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4"/>
+                    <path d="M12 16h.01"/>
+                </svg>
+                <span>Phishing Guard Cameroun</span>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-section="dashboard">Tableau de bord</button>
+                <button class="nav-btn" data-section="message">Analyser un message</button>
+                <button class="nav-btn" data-section="url">Analyser une URL</button>
+                <button class="nav-btn" data-section="history">Historique</button>
+                <button class="nav-btn" data-section="tips">Conseils</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section id="dashboard" class="section active">
+            <h1>Tableau de bord</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total analyses</span>
+                        <span class="stat-value" id="total-analyses">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon low">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance faible</span>
+                        <span class="stat-value" id="low-vigilance">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon medium">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance modérée</span>
+                        <span class="stat-value" id="medium-vigilance">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon high">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance élevée</span>
+                        <span class="stat-value" id="high-vigilance">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-analyses">
+                <h2>Dernières analyses</h2>
+                <div id="recent-analyses-list" class="analyses-list">
+                    <p class="empty-state">Aucune analyse récente</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="message" class="section">
+            <h1>Analyser un message</h1>
+            <div class="analysis-card">
+                <div class="form-group">
+                    <label for="message-input">Collez votre message (SMS, e-mail, WhatsApp)</label>
+                    <textarea id="message-input" rows="8" placeholder="Exemple: Votre compte Mobile Money sera bloqué si vous ne confirmez pas votre identité. Cliquez sur ce lien..."></textarea>
+                </div>
+                <button id="analyze-message-btn" class="btn btn-primary">Analyser le message</button>
+            </div>
+            <div id="message-result" class="result-container hidden"></div>
+        </section>
+
+        <section id="url" class="section">
+            <h1>Analyser une URL</h1>
+            <div class="analysis-card">
+                <div class="form-group">
+                    <label for="url-input">Entrez l'URL à analyser</label>
+                    <input type="text" id="url-input" placeholder="https://exemple.com">
+                </div>
+                <button id="analyze-url-btn" class="btn btn-primary">Analyser l'URL</button>
+            </div>
+            <div id="url-result" class="result-container hidden"></div>
+        </section>
+
+        <section id="history" class="section">
+            <h1>Historique des analyses</h1>
+            <div class="history-controls">
+                <div class="search-box">
+                    <input type="text" id="history-search" placeholder="Rechercher dans l'historique...">
+                </div>
+                <div class="filter-box">
+                    <select id="history-filter">
+                        <option value="all">Tous les types</option>
+                        <option value="message">Messages</option>
+                        <option value="url">URLs</option>
+                        <option value="low">Vigilance faible</option>
+                        <option value="medium">Vigilance modérée</option>
+                        <option value="high">Vigilance élevée</option>
+                    </select>
+                </div>
+                <button id="clear-history-btn" class="btn btn-danger">Effacer l'historique</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <p class="empty-state">Aucune analyse enregistrée</p>
+            </div>
+        </section>
+
+        <section id="tips" class="section">
+            <h1>Conseils de sécurité</h1>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3>Protégez vos codes PIN</h3>
+                    <p>Ne partagez jamais votre code PIN Mobile Money, Orange Money ou MTN MoMo avec personne, même si la personne se présente comme un agent du service client.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3>Codes OTP et validation</h3>
+                    <p>Ne communiquez jamais un code OTP (One-Time Password) ou un code de validation à quelqu'un qui vous contacte. Ces codes servent uniquement à vos propres transactions.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <h3>Vérifiez les notifications</h3>
+                    <p>En cas de doute sur une transaction, vérifiez directement dans votre application Mobile Money ou contactez le service client via les numéros officiels (ex: 150 pour MTN, 100 pour Orange).</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </div>
+                    <h3>Méfiez-vous des captures d'écran</h3>
+                    <p>Une capture d'écran de paiement peut être falsifiée. Vérifiez toujours que vous avez bien reçu l'argent sur votre compte avant de livrer un bien ou un service.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                    </div>
+                    <h3>Offres d'emploi suspectes</h3>
+                    <p>Méfiez-vous des offres d'emploi qui demandent des frais de dossier ou des paiements avant l'embauche. Les entreprises sérieuses ne demandent jamais d'argent pour recruter.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <h3>Gains inattendus</h3>
+                    <p>Si on vous annonce un gain, un remboursement ou une aide financière inattendue, soyez très prudent. Vérifiez toujours auprès de l'organisme officiel concerné.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </div>
+                    <h3>Ne cliquez pas précipitamment</h3>
+                    <p>Prenez le temps de vérifier les liens avant de cliquer. Survolez le lien avec votre souris pour voir l'adresse réelle. Les arnaques utilisent souvent l'urgence pour vous faire agir rapidement.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h3>Vérifiez les coordonnées officielles</h3>
+                    <p>Avant d'effectuer un paiement, vérifiez les coordonnées officielles sur le site web de l'entreprise ou de l'organisation. N'utilisez jamais les numéros fournis dans un message suspect.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Phishing Guard Cameroun - Outil pédagogique de sensibilisation</p>
+        <p class="disclaimer">Cet outil est fourni à titre éducatif. En cas de doute, contactez toujours les services officiels.</p>
+    </footer>
+
+    <script>
+        const STORAGE_KEY = 'phishing_guard_history';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeNavigation();
+            initializeMessageAnalysis();
+            initializeURLAnalysis();
+            initializeHistory();
+            updateDashboard();
+        });
+
+        function initializeNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.section');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetSection = button.dataset.section;
+                    
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetSection) {
+                            section.classList.add('active');
+                        }
+                    });
+
+                    if (targetSection === 'dashboard') {
+                        updateDashboard();
+                    }
+                });
+            });
+        }
+
+        function initializeMessageAnalysis() {
+            const analyzeBtn = document.getElementById('analyze-message-btn');
+            const messageInput = document.getElementById('message-input');
+            const resultContainer = document.getElementById('message-result');
+
+            analyzeBtn.addEventListener('click', () => {
+                const message = messageInput.value.trim();
+                
+                if (!message) {
+                    showError(resultContainer, 'Veuillez entrer un message à analyser.');
+                    return;
+                }
+
+                const analysis = analyzeMessage(message);
+                displayResult(resultContainer, analysis, 'message');
+                saveAnalysis({
+                    type: 'message',
+                    level: analysis.level,
+                    indicators: analysis.indicators.length,
+                    summary: truncateText(message, 100),
+                    timestamp: new Date().toISOString()
+                });
+                messageInput.value = '';
+            });
+        }
+
+        function analyzeMessage(message) {
+            const indicators = [];
+            const lowerMessage = message.toLowerCase();
+
+            if (lowerMessage.includes('urgent') || lowerMessage.includes('immédiat') || lowerMessage.includes('tout de suite')) {
+                if (lowerMessage.includes('paiement') || lowerMessage.includes('payer') || lowerMessage.includes('transfert')) {
+                    indicators.push({
+                        title: 'Demande urgente de paiement',
+                        explanation: 'Le message crée un sentiment d\'urgence pour vous pousser à agir rapidement sans réfléchir. Les arnaques utilisent souvent cette technique.',
+                        risk: 'high'
+                    });
+                }
+            }
+
+            if (lowerMessage.includes('mot de passe') || lowerMessage.includes('code') || lowerMessage.includes('pin') || lowerMessage.includes('otp')) {
+                indicators.push({
+                    title: 'Demande d\'informations sensibles',
+                    explanation: 'Aucun service légitime ne vous demandera jamais votre mot de passe, code PIN ou code de validation par message.',
+                    risk: 'high'
+                });
+            }
+
+            if (lowerMessage.includes('bloqué') || lowerMessage.includes('bloquera') || lowerMessage.includes('suspendu') || lowerMessage.includes('désactivé')) {
+                indicators.push({
+                    title: 'Menace de blocage de compte',
+                    explanation: 'Les arnaques menacent souvent de bloquer votre compte pour vous inciter à fournir vos informations.',
+                    risk: 'high'
+                });
+            }
+
+            if (lowerMessage.includes('gagné') || lowerMessage.includes('gain') || lowerMessage.includes('lot') || lowerMessage.includes('prix') || lowerMessage.includes('récompense')) {
+                indicators.push({
+                    title: 'Promesse de gain inattendu',
+                    explanation: 'Les annonces de gains, lots ou récompenses inattendus sont souvent des pièges pour obtenir vos informations personnelles.',
+                    risk: 'medium'
+                });
+            }
+
+            if (lowerMessage.includes('transfert') || lowerMessage.includes('envoyer') || lowerMessage.includes('mobile money') || lowerMessage.includes('orange money') || lowerMessage.includes('mtn momo')) {
+                if (lowerMessage.includes('frais') || lowerMessage.includes('commission') || lowerMessage.includes('taxe')) {
+                    indicators.push({
+                        title: 'Demande de transfert avec frais',
+                        explanation: 'Les arnaques demandent souvent un petit transfert pour débloquer un gain plus important. C\'est toujours un piège.',
+                        risk: 'high'
+                    });
+                } else {
+                    indicators.push({
+                        title: 'Mention de services de transfert d\'argent',
+                        explanation: 'Le message mentionne des services de transfert d\'argent. Vérifiez toujours l\'authenticité auprès du service officiel.',
+                        risk: 'low'
+                    });
+                }
+            }
+
+            const linkPattern = /https?:\/\/[^\s]+/gi;
+            const links = message.match(linkPattern);
+            if (links) {
+                indicators.push({
+                    title: 'Présence de liens',
+                    explanation: `Le message contient ${links.length} lien(s). Ne cliquez jamais sur un lien dans un message suspect. Vérifiez toujours l\'adresse officielle.`,
+                    risk: 'medium'
+                });
+            }
+
+            if (lowerMessage.includes('confidentiel') || lowerMessage.includes('personnel') || lowerMessage.includes('identité') || lowerMessage.includes('carte')) {
+                indicators.push({
+                    title: 'Demande d\'informations confidentielles',
+                    explanation: 'Le message demande des informations personnelles ou confidentielles. Soyez très prudent.',
+                    risk: 'high'
+                });
+            }
+
+            if (lowerMessage.includes('remboursement') || lowerMessage.includes('rembourser') || lowerMessage.includes('remboursé')) {
+                indicators.push({
+                    title: 'Promesse de remboursement',
+                    explanation: 'Les promesses de remboursement inattendues sont souvent utilisées pour obtenir vos informations bancaires.',
+                    risk: 'medium'
+                });
+            }
+
+            if (lowerMessage.includes('livraison') || lowerMessage.includes('colis') || lowerMessage.includes('package') || lowerMessage.includes('commande')) {
+                if (lowerMessage.includes('frais') || lowerMessage.includes('payer') || lowerMessage.includes('transfert')) {
+                    indicators.push({
+                        title: 'Fausse livraison avec paiement demandé',
+                        explanation: 'Les faux messages de livraison demandent souvent un paiement pour recevoir un colis. Les services de livraison légitimes ne fonctionnent pas ainsi.',
+                        risk: 'high'
+                    });
+                } else {
+                    indicators.push({
+                        title: 'Message de livraison',
+                        explanation: 'Le message concerne une livraison. Vérifiez directement sur le site officiel du service de livraison.',
+                        risk: 'low'
+                    });
+                }
+            }
+
+            if (lowerMessage.includes('emploi') || lowerMessage.includes('travail') || lowerMessage.includes('recrutement') || lowerMessage.includes('poste')) {
+                if (lowerMessage.includes('frais') || lowerMessage.includes('dossier') || lowerMessage.includes('payer')) {
+                    indicators.push({
+                        title: 'Offre d\'emploi avec frais demandés',
+                        explanation: 'Les offres d\'emploi légitimes ne demandent jamais de frais de dossier ou de paiement avant l\'embauche.',
+                        risk: 'high'
+                    });
+                } else {
+                    indicators.push({
+                        title: 'Mention d\'offre d\'emploi',
+                        explanation: 'Le message mentionne une offre d\'emploi. Vérifiez toujours sur le site officiel de l\'entreprise.',
+                        risk: 'low'
+                    });
+                }
+            }
+
+            if (lowerMessage.includes('aide') || lowerMessage.includes('subvention') || lowerMessage.includes('bourse') || lowerMessage.includes('financement')) {
+                indicators.push({
+                    title: 'Promesse d\'aide financière',
+                    explanation: 'Les promesses d\'aide financière non sollicitées sont souvent des arnaques. Vérifiez auprès des institutions officielles.',
+                    risk: 'medium'
+                });
+            }
+
+            const phonePattern = /(\+237|237)?[2368]\d{8}/g;
+            const phones = message.match(phonePattern);
+            if (phones) {
+                indicators.push({
+                    title: 'Numéro de téléphone présent',
+                    explanation: 'Le message contient un numéro de téléphone. Vérifiez toujours qu\'il s\'agit d\'un numéro officiel (ex: 150 pour MTN, 100 pour Orange).',
+                    risk: 'low'
+                });
+            }
+
+            let level = 'low';
+            const highRiskCount = indicators.filter(i => i.risk === 'high').length;
+            const mediumRiskCount = indicators.filter(i => i.risk === 'medium').length;
+
+            if (highRiskCount >= 2 || (highRiskCount >= 1 && mediumRiskCount >= 2)) {
+                level = 'high';
+            } else if (highRiskCount >= 1 || mediumRiskCount >= 2) {
+                level = 'medium';
+            }
+
+            return {
+                level,
+                indicators,
+                precautions: getPrecautions(level)
+            };
+        }
+
+        function initializeURLAnalysis() {
+            const analyzeBtn = document.getElementById('analyze-url-btn');
+            const urlInput = document.getElementById('url-input');
+            const resultContainer = document.getElementById('url-result');
+
+            analyzeBtn.addEventListener('click', () => {
+                const url = urlInput.value.trim();
+                
+                if (!url) {
+                    showError(resultContainer, 'Veuillez entrer une URL à analyser.');
+                    return;
+                }
+
+                const analysis = analyzeURL(url);
+                displayResult(resultContainer, analysis, 'url');
+                saveAnalysis({
+                    type: 'url',
+                    level: analysis.level,
+                    indicators: analysis.indicators.length,
+                    summary: truncateText(url, 100),
+                    timestamp: new Date().toISOString()
+                });
+                urlInput.value = '';
+            });
+        }
+
+        function analyzeURL(urlString) {
+            const indicators = [];
+            
+            try {
+                const url = new URL(urlString);
+                
+                if (url.protocol === 'https:') {
+                    indicators.push({
+                        title: 'Protocole HTTPS détecté',
+                        explanation: 'L\'URL utilise le protocole HTTPS. Notez que cela ne garantit pas que le site est fiable. De nombreux sites de phishing utilisent également HTTPS.',
+                        risk: 'low'
+                    });
+                } else if (url.protocol === 'http:') {
+                    indicators.push({
+                        title: 'Protocole HTTP non sécurisé',
+                        explanation: 'L\'URL utilise le protocole HTTP non chiffré. Les sites légitimes utilisent généralement HTTPS.',
+                        risk: 'medium'
+                    });
+                } else {
+                    indicators.push({
+                        title: 'Protocole inhabituel',
+                        explanation: `L'URL utilise un protocole inhabituel: ${url.protocol}`,
+                        risk: 'high'
+                    });
+                }
+
+                const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+                if (ipPattern.test(url.hostname)) {
+                    indicators.push({
+                        title: 'Adresse IP utilisée comme hôte',
+                        explanation: 'L\'URL utilise une adresse IP au lieu d\'un nom de domaine. Les sites légitimes utilisent rarement des adresses IP directement.',
+                        risk: 'high'
+                    });
+                }
+
+                const suspiciousPatterns = [
+                    /login/i, /signin/i, /secure/i, /account/i, /verify/i, /confirm/i, /update/i, /bank/i, /mtn/i, /orange/i, /cameroon/i, /cameroun/i, /cm/i
+                ];
+
+                const hostname = url.hostname.toLowerCase();
+                suspiciousPatterns.forEach(pattern => {
+                    if (pattern.test(hostname)) {
+                        indicators.push({
+                            title: 'Terme suspect dans le nom de domaine',
+                            explanation: `Le nom de domaine contient le terme "${pattern.source}" qui est souvent utilisé dans les sites de phishing.`,
+                            risk: 'medium'
+                        });
+                    }
+                });
+
+                const parts = hostname.split('.');
+                if (parts.length > 3) {
+                    indicators.push({
+                        title: 'Sous-domaines multiples',
+                        explanation: 'L\'URL contient plusieurs sous-domaines. Les arnaques utilisent parfois des sous-domaines complexes pour imiter des sites légitimes.',
+                        risk: 'medium'
+                    });
+                }
+
+                const suspiciousChars = /[àáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ]/i;
+                if (suspiciousChars.test(hostname)) {
+                    indicators.push({
+                        title: 'Caractères spéciaux dans le domaine',
+                        explanation: 'Le nom de domaine contient des caractères spéciaux qui peuvent être utilisés pour imiter d\'autres domaines (attaque par homographe).',
+                        risk: 'high'
+                    });
+                }
+
+                const suspiciousTLDs = ['.xyz', '.top', '.tk', '.ml', '.ga', '.cf', '.gq'];
+                const tld = hostname.substring(hostname.lastIndexOf('.'));
+                if (suspiciousTLDs.includes(tld)) {
+                    indicators.push({
+                        title: 'Extension de domaine suspecte',
+                        explanation: `L'extension ${tld} est souvent utilisée par les sites de phishing en raison de son faible coût.`,
+                        risk: 'medium'
+                    });
+                }
+
+                if (hostname.length > 50) {
+                    indicators.push({
+                        title: 'Nom de domaine très long',
+                        explanation: 'Les noms de domaine très longs sont souvent utilisés pour masquer la véritable identité du site.',
+                        risk: 'medium'
+                    });
+                }
+
+                const numberPattern = /\d{4,}/;
+                if (numberPattern.test(hostname)) {
+                    indicators.push({
+                        title: 'Séquences de nombres dans le domaine',
+                        explanation: 'Le nom de domaine contient des séquences de nombres, ce qui est atypique pour les sites légitimes.',
+                        risk: 'low'
+                    });
+                }
+
+                let level = 'low';
+                const highRiskCount = indicators.filter(i => i.risk === 'high').length;
+                const mediumRiskCount = indicators.filter(i => i.risk === 'medium').length;
+
+                if (highRiskCount >= 1 || mediumRiskCount >= 3) {
+                    level = 'high';
+                } else if (mediumRiskCount >= 1) {
+                    level = 'medium';
+                }
+
+                return {
+                    level,
+                    indicators,
+                    precautions: getPrecautions(level)
+                };
+
+            } catch (error) {
+                return {
+                    level: 'high',
+                    indicators: [{
+                        title: 'URL invalide',
+                        explanation: 'L\'URL fournie n\'est pas valide. Vérifiez le format et réessayez.',
+                        risk: 'high'
+                    }],
+                    precautions: getPrecautions('high')
+                };
+            }
+        }
+
+        function getPrecautions(level) {
+            const basePrecautions = [
+                'Ne cliquez jamais sur un lien dans un message suspect',
+                'Vérifiez l\'information auprès du service officiel',
+                'Ne communiquez jamais de code secret ou de validation'
+            ];
+
+            if (level === 'low') {
+                return [...basePrecautions, 'Gardez une vigilance normale', 'Vérifiez l\'expéditeur du message'];
+            } else if (level === 'medium') {
+                return [...basePrecautions, 'Soyez particulièrement prudent', 'Contactez le service via les canaux officiels', 'Ne fournissez aucune information personnelle'];
+            } else {
+                return [...basePrecautions, 'Traitez ce message comme suspect', 'Ne répondez pas au message', 'Signalez le message si possible', 'Bloquez l\'expéditeur'];
+            }
+        }
+
+        function displayResult(container, analysis, type) {
+            container.classList.remove('hidden');
+            
+            const levelText = {
+                low: 'Vigilance faible',
+                medium: 'Vigilance modérée',
+                high: 'Vigilance élevée'
+            };
+
+            let html = `
+                <div class="result-header">
+                    <span class="result-level ${analysis.level}">${levelText[analysis.level]}</span>
+                </div>
+            `;
+
+            if (analysis.indicators.length > 0) {
+                html += '<div class="result-indicators">';
+                analysis.indicators.forEach(indicator => {
+                    html += `
+                        <div class="indicator-item ${indicator.risk === 'high' ? 'high-risk' : ''}">
+                            <div class="indicator-title">${indicator.title}</div>
+                            <div class="indicator-explanation">${indicator.explanation}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p>Aucun indice suspect détecté.</p>';
+            }
+
+            html += `
+                <div class="result-precautions">
+                    <h4>Précautions recommandées :</h4>
+                    <ul>
+                        ${analysis.precautions.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="result-warning">
+                    <strong>⚠️ Avertissement :</strong> Cette analyse est indicative. L'absence d'indice détecté ne garantit pas qu'un message ou un lien soit sûr. En cas de doute, vérifiez l'information auprès du service officiel concerné. Ne communiquez jamais un code secret ou un code de validation à une personne qui vous contacte.
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function showError(container, message) {
+            container.classList.remove('hidden');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function initializeHistory() {
+            const searchInput = document.getElementById('history-search');
+            const filterSelect = document.getElementById('history-filter');
+            const clearBtn = document.getElementById('clear-history-btn');
+
+            searchInput.addEventListener('input', () => renderHistory());
+            filterSelect.addEventListener('change', () => renderHistory());
+            clearBtn.addEventListener('click', clearHistory);
+
+            renderHistory();
+        }
+
+        function getHistory() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveHistory(history) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        }
+
+        function saveAnalysis(analysis) {
+            const history = getHistory();
+            history.unshift(analysis);
+            if (history.length > 100) {
+                history.pop();
+            }
+            saveHistory(history);
+            updateDashboard();
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('history-list');
+            const searchInput = document.getElementById('history-search');
+            const filterSelect = document.getElementById('history-filter');
+            
+            let history = getHistory();
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm) {
+                history = history.filter(item => 
+                    item.summary.toLowerCase().includes(searchTerm) ||
+                    item.type.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const filter = filterSelect.value;
+            if (filter !== 'all') {
+                if (['message', 'url'].includes(filter)) {
+                    history = history.filter(item => item.type === filter);
+                } else {
+                    history = history.filter(item => item.level === filter);
+                }
+            }
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<p class="empty-state">Aucune analyse correspondante</p>';
+                return;
+            }
+
+            const levelText = {
+                low: 'Vigilance faible',
+                medium: 'Vigilance modérée',
+                high: 'Vigilance élevée'
+            };
+
+            const typeText = {
+                message: 'Message',
+                url: 'URL'
+            };
+
+            historyList.innerHTML = history.map((item, index) => `
+                <div class="history-item">
+                    <div class="history-item-content">
+                        <div class="history-item-header">
+                            <span class="history-item-type">${typeText[item.type]}</span>
+                            <span class="analysis-item-level ${item.level}">${levelText[item.level]}</span>
+                            <span class="history-item-date">${formatDate(item.timestamp)}</span>
+                        </div>
+                        <div class="history-item-summary">${escapeHtml(item.summary)}</div>
+                        <div class="history-item-meta">${item.indicators} indice(s) détecté(s)</div>
+                    </div>
+                    <div class="history-item-actions">
+                        <button class="btn-delete" onclick="deleteHistoryItem(${index})">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteHistoryItem(index) {
+            const history = getHistory();
+            history.splice(index, 1);
+            saveHistory(history);
+            renderHistory();
+            updateDashboard();
+        }
+
+        function clearHistory() {
+            if (confirm('Êtes-vous sûr de vouloir effacer tout l\'historique ?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderHistory();
+                updateDashboard();
+            }
+        }
+
+        function updateDashboard() {
+            const history = getHistory();
+            
+            const total = history.length;
+            const low = history.filter(item => item.level === 'low').length;
+            const medium = history.filter(item => item.level === 'medium').length;
+            const high = history.filter(item => item.level === 'high').length;
+
+            document.getElementById('total-analyses').textContent = total;
+            document.getElementById('low-vigilance').textContent = low;
+            document.getElementById('medium-vigilance').textContent = medium;
+            document.getElementById('high-vigilance').textContent = high;
+
+            const recentList = document.getElementById('recent-analyses-list');
+            const recent = history.slice(0, 5);
+
+            if (recent.length === 0) {
+                recentList.innerHTML = '<p class="empty-state">Aucune analyse récente</p>';
+                return;
+            }
+
+            const levelText = {
+                low: 'Vigilance faible',
+                medium: 'Vigilance modérée',
+                high: 'Vigilance élevée'
+            };
+
+            const typeText = {
+                message: 'Message',
+                url: 'URL'
+            };
+
+            recentList.innerHTML = recent.map(item => `
+                <div class="analysis-item ${item.level}">
+                    <div class="analysis-item-info">
+                        <div class="analysis-item-type">${typeText[item.type]}</div>
+                        <div class="analysis-item-summary">${escapeHtml(item.summary)}</div>
+                        <div class="analysis-item-meta">${formatDate(item.timestamp)} • ${item.indicators} indice(s)</div>
+                    </div>
+                    <span class="analysis-item-level ${item.level}">${levelText[item.level]}</span>
+                </div>
+            `).join('');
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

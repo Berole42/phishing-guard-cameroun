@@ -1,0 +1,12 @@
+# Fichiers de test
+test.html
+minimal-test.html
+INSTRUCTIONS.txt
+
+# Si vous utilisez Node.js plus tard
+node_modules/
+package-lock.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db

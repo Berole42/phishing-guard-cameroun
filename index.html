@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Guard Cameroun - Détection d'Arnaques</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4"/>
+                    <path d="M12 16h.01"/>
+                </svg>
+                <span>Phishing Guard Cameroun</span>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-section="dashboard">Tableau de bord</button>
+                <button class="nav-btn" data-section="message">Analyser un message</button>
+                <button class="nav-btn" data-section="url">Analyser une URL</button>
+                <button class="nav-btn" data-section="history">Historique</button>
+                <button class="nav-btn" data-section="tips">Conseils</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h1>Tableau de bord</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total analyses</span>
+                        <span class="stat-value" id="total-analyses">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon low">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance faible</span>
+                        <span class="stat-value" id="low-vigilance">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon medium">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance modérée</span>
+                        <span class="stat-value" id="medium-vigilance">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon high">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Vigilance élevée</span>
+                        <span class="stat-value" id="high-vigilance">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-analyses">
+                <h2>Dernières analyses</h2>
+                <div id="recent-analyses-list" class="analyses-list">
+                    <p class="empty-state">Aucune analyse récente</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Message Analysis Section -->
+        <section id="message" class="section">
+            <h1>Analyser un message</h1>
+            <div class="analysis-card">
+                <div class="form-group">
+                    <label for="message-input">Collez votre message (SMS, e-mail, WhatsApp)</label>
+                    <textarea id="message-input" rows="8" placeholder="Exemple: Votre compte Mobile Money sera bloqué si vous ne confirmez pas votre identité. Cliquez sur ce lien..."></textarea>
+                </div>
+                <button id="analyze-message-btn" class="btn btn-primary">Analyser le message</button>
+            </div>
+            <div id="message-result" class="result-container hidden"></div>
+        </section>
+
+        <!-- URL Analysis Section -->
+        <section id="url" class="section">
+            <h1>Analyser une URL</h1>
+            <div class="analysis-card">
+                <div class="form-group">
+                    <label for="url-input">Entrez l'URL à analyser</label>
+                    <input type="text" id="url-input" placeholder="https://exemple.com">
+                </div>
+                <button id="analyze-url-btn" class="btn btn-primary">Analyser l'URL</button>
+            </div>
+            <div id="url-result" class="result-container hidden"></div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <h1>Historique des analyses</h1>
+            <div class="history-controls">
+                <div class="search-box">
+                    <input type="text" id="history-search" placeholder="Rechercher dans l'historique...">
+                </div>
+                <div class="filter-box">
+                    <select id="history-filter">
+                        <option value="all">Tous les types</option>
+                        <option value="message">Messages</option>
+                        <option value="url">URLs</option>
+                        <option value="low">Vigilance faible</option>
+                        <option value="medium">Vigilance modérée</option>
+                        <option value="high">Vigilance élevée</option>
+                    </select>
+                </div>
+                <button id="clear-history-btn" class="btn btn-danger">Effacer l'historique</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <p class="empty-state">Aucune analyse enregistrée</p>
+            </div>
+        </section>
+
+        <!-- Security Tips Section -->
+        <section id="tips" class="section">
+            <h1>Conseils de sécurité</h1>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3>Protégez vos codes PIN</h3>
+                    <p>Ne partagez jamais votre code PIN Mobile Money, Orange Money ou MTN MoMo avec personne, même si la personne se présente comme un agent du service client.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3>Codes OTP et validation</h3>
+                    <p>Ne communiquez jamais un code OTP (One-Time Password) ou un code de validation à quelqu'un qui vous contacte. Ces codes servent uniquement à vos propres transactions.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <h3>Vérifiez les notifications</h3>
+                    <p>En cas de doute sur une transaction, vérifiez directement dans votre application Mobile Money ou contactez le service client via les numéros officiels (ex: 150 pour MTN, 100 pour Orange).</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </div>
+                    <h3>Méfiez-vous des captures d'écran</h3>
+                    <p>Une capture d'écran de paiement peut être falsifiée. Vérifiez toujours que vous avez bien reçu l'argent sur votre compte avant de livrer un bien ou un service.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                    </div>
+                    <h3>Offres d'emploi suspectes</h3>
+                    <p>Méfiez-vous des offres d'emploi qui demandent des frais de dossier ou des paiements avant l'embauche. Les entreprises sérieuses ne demandent jamais d'argent pour recruter.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <h3>Gains inattendus</h3>
+                    <p>Si on vous annonce un gain, un remboursement ou une aide financière inattendue, soyez très prudent. Vérifiez toujours auprès de l'organisme officiel concerné.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </div>
+                    <h3>Ne cliquez pas précipitamment</h3>
+                    <p>Prenez le temps de vérifier les liens avant de cliquer. Survolez le lien avec votre souris pour voir l'adresse réelle. Les arnaques utilisent souvent l'urgence pour vous faire agir rapidement.</p>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h3>Vérifiez les coordonnées officielles</h3>
+                    <p>Avant d'effectuer un paiement, vérifiez les coordonnées officielles sur le site web de l'entreprise ou de l'organisation. N'utilisez jamais les numéros fournis dans un message suspect.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Phishing Guard Cameroun - Outil pédagogique de sensibilisation</p>
+        <p class="disclaimer">Cet outil est fourni à titre éducatif. En cas de doute, contactez toujours les services officiels.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
